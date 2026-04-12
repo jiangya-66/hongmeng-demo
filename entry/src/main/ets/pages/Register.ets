@@ -243,7 +243,7 @@ export struct Register {
                 placeholder: '请输入密码',
                 text: this.password
               })
-                .width('90%')
+                .width('100%')
                 .height(48)
                 .padding({ left: 16, right: 16 })
                 .borderRadius(12)
@@ -258,14 +258,14 @@ export struct Register {
                   }
                 })
 
-              // 密码可见性切换按钮
-              Image(this.isPasswordVisible ? $r('app.media.startIcon') : $r('app.media.foreground'))
-                .width(24)
-                .height(24)
-                .margin({ left: 12 })
-                .onClick(() => {
-                  this.togglePasswordVisibility();
-                })
+              // // 密码可见性切换按钮
+              // Image(this.isPasswordVisible ? $r('app.media.startIcon') : $r('app.media.foreground'))
+              //   .width(24)
+              //   .height(24)
+              //   .margin({ left: 12 })
+              //   .onClick(() => {
+              //     this.togglePasswordVisibility();
+              //   })
             }
             .width('100%')
             .alignItems(VerticalAlign.Center)
@@ -289,7 +289,7 @@ export struct Register {
                 placeholder: '请再次输入密码',
                 text: this.confirmPassword
               })
-                .width('90%')
+                .width('100%')
                 .height(48)
                 .padding({ left: 16, right: 16 })
                 .borderRadius(12)
@@ -304,14 +304,14 @@ export struct Register {
                   }
                 })
 
-              // 确认密码可见性切换按钮
-              Image(this.isConfirmPasswordVisible ? $r('app.media.startIcon') : $r('app.media.foreground'))
-                .width(24)
-                .height(24)
-                .margin({ left: 12 })
-                .onClick(() => {
-                  this.toggleConfirmPasswordVisibility();
-                })
+              // // 确认密码可见性切换按钮
+              // Image(this.isConfirmPasswordVisible ? $r('app.media.startIcon') : $r('app.media.foreground'))
+              //   .width(24)
+              //   .height(24)
+              //   .margin({ left: 12 })
+              //   .onClick(() => {
+              //     this.toggleConfirmPasswordVisibility();
+              //   })
             }
             .width('100%')
             .alignItems(VerticalAlign.Center)

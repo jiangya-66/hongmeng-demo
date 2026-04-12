@@ -42,18 +42,18 @@ export struct Splash {
         .shadow({ radius: 20, color: '#007DFF20', offsetX: 0, offsetY: 10 })
       
       // 应用名称
-      Text('MyApplication')
+      Text('HONGMENG-APP')
         .fontSize(36)
         .fontWeight(FontWeight.Bold)
         .fontColor('#007DFF')
         .margin({ bottom: 12 })
-      
-      // 应用描述
-      Text('HarmonyOS 应用')
-        .fontSize(18)
-        .fontColor('#666666')
-        .margin({ bottom: 60 })
-      
+
+      // // 应用描述
+      // Text('HarmonyOS 应用')
+      //   .fontSize(18)
+      //   .fontColor('#666666')
+      //   .margin({ bottom: 60 })
+
       // 加载进度条
       Column() {
         Progress({ value: this.progressValue, total: 100, type: ProgressType.Ring })
@@ -84,7 +84,7 @@ export struct Splash {
       }
       
       // 底部版权信息
-      Text('© 2024 MyApplication')
+      Text('© 2025 中软国际')
         .fontSize(12)
         .fontColor('#CCCCCC')
         .margin({ top: 80 })

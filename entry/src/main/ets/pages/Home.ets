@@ -77,7 +77,7 @@ export struct Home {
           // 顶部占位空间，确保内容不被顶部固定区域遮挡
           Column()
             .width('100%')
-            .height(160) // 顶部区域的高度：状态栏(60+24+24=108) + 搜索栏(44+16=60) + 额外间距
+            .height(80) // 顶部区域的高度：状态栏(60+24+24=108) + 搜索栏(44+16=60) + 额外间距
             
           if (this.selectedTab === 0) {
             // 首页内容 - 使用新的HomeContent组件
@@ -130,52 +130,52 @@ export struct Home {
       
       // 顶部状态栏和搜索栏（固定）
       Column() {
-        Row() {
-          Column() {
-            Text('下午好')
-              .fontSize(14)
-              .fontColor('#666666')
-
-            Text(this.currentUser)
-              .fontSize(20)
-              .fontWeight(FontWeight.Bold)
-              .fontColor('#333333')
-          }
-          
-          Row() {
-            // 通知按钮
-            Stack() {
-              Image($r('app.media.startIcon'))
-                .width(24)
-                .height(24)
-              
-              if (this.notifications > 0) {
-                Text(this.notifications.toString())
-                  .fontSize(10)
-                  .fontColor('#FFFFFF')
-                  .backgroundColor('#FF3B30')
-                  .padding({ left: 6, right: 6, top: 2, bottom: 2 })
-                  .borderRadius(10)
-                  .position({ x: '80%', y: '-20%' })
-              }
-            }
-            .onClick(() => {
-              this.handleNotificationClick();
-            })
-            .margin({ right: 20 })
-            
-            // 设置按钮
-            Image($r('app.media.foreground'))
-              .width(24)
-              .height(24)
-              .onClick(() => {
-                this.handleSettingsClick();
-              })
-          }
-          .margin({ left: 'auto' })
-        }
-        .width('100%')
-        .padding({ left: 24, right: 24, top: 60, bottom: 24 })
+        // Row() {
+          // Column() {
+          //   Text('下午好')
+          //     .fontSize(14)
+          //     .fontColor('#666666')
+          //
+          //   Text(this.currentUser)
+          //     .fontSize(20)
+          //     .fontWeight(FontWeight.Bold)
+          //     .fontColor('#333333')
+          // }
+          //
+          // Row() {
+          //   // 通知按钮
+          //   Stack() {
+          //     Image($r('app.media.startIcon'))
+          //       .width(24)
+          //       .height(24)
+          //
+          //     if (this.notifications > 0) {
+          //       Text(this.notifications.toString())
+          //         .fontSize(10)
+          //         .fontColor('#FFFFFF')
+          //         .backgroundColor('#FF3B30')
+          //         .padding({ left: 6, right: 6, top: 2, bottom: 2 })
+          //         .borderRadius(10)
+          //         .position({ x: '80%', y: '-20%' })
+          //     }
+          //   }
+          //   .onClick(() => {
+          //     this.handleNotificationClick();
+          //   })
+          //   .margin({ right: 20 })
+          //
+          //   // 设置按钮
+          //   Image($r('app.media.foreground'))
+          //     .width(24)
+          //     .height(24)
+          //     .onClick(() => {
+          //       this.handleSettingsClick();
+          //     })
+          // }
+          // .margin({ left: 'auto' })
+        // }
+        // .width('100%')
+        // .padding({ left: 24, right: 24, top: 60, bottom: 24 })
         
         // 搜索栏
         Row() {
@@ -200,7 +200,7 @@ export struct Home {
           Image($r('app.media.startIcon'))
             .width(20)
             .height(20)
-            .margin({ right: 12 })
+            .margin({ right: 12 ,top:10})
             .position({ x: '90%' })
             .onClick(() => {
               this.handleSearch();
@@ -300,6 +300,6 @@ export struct Home {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F8F9FA')
+    .backgroundColor('#ffd0e0f5')
   }
 }

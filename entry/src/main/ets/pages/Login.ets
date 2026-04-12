@@ -301,6 +301,8 @@ export struct Login {
               Text('密码')
                 .fontSize(16)
                 .fontColor('#333333')
+                .width('100%')
+
             }
             .width('100%')
             .margin({ bottom: 8 })
@@ -310,7 +312,7 @@ export struct Login {
                 placeholder: '请输入密码',
                 text: this.password
               })
-                .width('90%')
+                .width('100%')
                 .height(52)
                 .padding({ left: 16, right: 16 })
                 .borderRadius(12)
@@ -325,14 +327,14 @@ export struct Login {
                   }
                 })
               
-              // 密码可见性切换按钮
-              Image(this.isPasswordVisible ? $r('app.media.startIcon') : $r('app.media.foreground'))
-                .width(24)
-                .height(24)
-                .margin({ left: 12 })
-                .onClick(() => {
-                  this.togglePasswordVisibility();
-                })
+              // // 密码可见性切换按钮
+              // Image(this.isPasswordVisible ? $r('app.media.startIcon') : $r('app.media.foreground'))
+              //   .width(24)
+              //   .height(24)
+              //   .margin({ left: 12 })
+              //   .onClick(() => {
+              //     this.togglePasswordVisibility();
+              //   })
             }
             .width('100%')
             .alignItems(VerticalAlign.Center)
