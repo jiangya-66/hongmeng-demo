@@ -1,5 +1,6 @@
 import router from '@ohos.router';
 import prompt from '@ohos.promptAction';
+import { httpService } from '../services/HttpService';
 
 @Entry
 @Component
@@ -15,7 +16,7 @@ export struct Register {
   @State agreeToTerms: boolean = false;
 
   // 处理注册
-  private handleRegister(): void {
+  private async handleRegister(): Promise<void> {
     // 验证输入
     if (!this.username.trim()) {
       this.errorMessage = '请输入用户名';
@@ -56,21 +57,37 @@ export struct Register {
     this.errorMessage = '';
     this.isLoading = true;
 
-    // 模拟注册请求（实际项目中应该调用API）
-    setTimeout(() => {
+    try {
+      // 调用注册API
+      const response = await httpService.register(this.username, this.password, this.confirmPassword, this.email);
+      
       this.isLoading = false;
-
-      // 模拟注册成功
+      
+      // 注册成功
       prompt.showToast({
         message: '注册成功！请登录',
         duration: 2000
       });
 
-      // 延迟跳转到登录页
+      // 延迟2秒后跳转到登录页
       setTimeout(() => {
         router.back();
       }, 2000);
-    }, 1500);
+      
+    } catch (err) {
+      // 注册失败
+      this.isLoading = false;
+      const errorMessage = (err as Error).message || '注册失败，请稍后重试';
+      this.errorMessage = errorMessage;
+      
+      // 显示错误提示
+      prompt.showToast({
+        message: errorMessage,
+        duration: 2000
+      });
+      
+      console.error('注册失败:', err instanceof Error ? err.message : '未知错误');
+    }
   }
 
   // 验证邮箱格式
@@ -362,8 +379,8 @@ export struct Register {
             .fontSize(16)
             .fontWeight(FontWeight.Medium)
             .enabled(!this.isLoading)
-            .onClick(() => {
-              this.handleRegister();
+            .onClick(async () => {
+              await this.handleRegister();
             })
             .margin({ bottom: 24 })
 

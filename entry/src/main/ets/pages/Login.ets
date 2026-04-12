@@ -1,5 +1,9 @@
 import router from '@ohos.router';
 import prompt from '@ohos.promptAction';
+import { connection } from '@kit.NetworkKit';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { httpService } from '../services/HttpService';
+import { getStorageService } from '../services/StorageService';
 
 @Entry
 @Component
@@ -11,17 +15,68 @@ export struct Login {
   @State errorMessage: string = '';
   @State rememberMe: boolean = false;
   
-  // 模拟用户数据
-  private readonly validUsername: string = 'admin';
-  private readonly validPassword: string = '123456';
-  
   aboutToAppear(): void {
     // 检查本地存储中是否有记住的用户名
     // 这里可以添加从Preferences读取保存的用户名逻辑
   }
   
+  // 检查网络连接
+  private async checkNetworkBeforeLogin(): Promise<boolean> {
+    try {
+      // 使用Promise方式获取默认网络
+      const netHandle = await connection.getDefaultNet();
+      if (!netHandle) {
+        prompt.showToast({
+          message: '网络连接不可用，请检查网络设置',
+          duration: 2000
+        });
+        return false;
+      }
+
+      // 检查网络ID是否为0（表示无网络）
+      if (netHandle.netId === 0) {
+        prompt.showToast({
+          message: '无网络连接，请检查网络设置',
+          duration: 2000
+        });
+        return false;
+      }
+
+      // 使用Promise方式获取网络能力
+      const netCapabilities = await connection.getNetCapabilities(netHandle);
+      if (!netCapabilities) {
+        prompt.showToast({
+          message: '无法获取网络状态，请检查网络设置',
+          duration: 2000
+        });
+        return false;
+      }
+
+      // 检查是否有网络连接 - 使用bearerTypes数组判断
+      const bearerTypes = netCapabilities.bearerTypes;
+      if (!bearerTypes || bearerTypes.length === 0) {
+        prompt.showToast({
+          message: '无网络连接类型，请检查网络设置',
+          duration: 2000
+        });
+        return false;
+      }
+
+      console.info('网络连接检查成功 - 网络类型:', JSON.stringify(bearerTypes));
+      return true;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '未知错误';
+      console.error('网络连接检查失败:', errorMessage);
+      prompt.showToast({
+        message: '网络连接检查失败，请重试',
+        duration: 2000
+      });
+      return false;
+    }
+  }
+
   // 处理登录
-  private handleLogin(): void {
+  private async handleLogin(): Promise<void> {
     // 验证输入
     if (!this.username.trim()) {
       this.errorMessage = '请输入用户名';
@@ -36,33 +91,111 @@ export struct Login {
     // 清除错误信息
     this.errorMessage = '';
     this.isLoading = true;
+
+    // 检查网络连接
+    const isNetworkAvailable = await this.checkNetworkBeforeLogin();
+    if (!isNetworkAvailable) {
+      this.isLoading = false;
+      this.errorMessage = '网络连接不可用，请检查网络设置';
+      return;
+    }
     
-    // 模拟登录验证（实际项目中应该调用API）
-    setTimeout(() => {
+    try {
+      // 调用登录API
+      const response = await httpService.login(this.username, this.password);
+      
+      // 验证响应数据
+      if (!response || typeof response !== 'object') {
+        throw new Error('登录响应无效');
+      }
+      
+      if (!response.token || typeof response.token !== 'string') {
+        throw new Error('登录响应缺少有效的token');
+      }
+      
+      // 登录成功，保存token到本地存储
+      try {
+        const storageService = await getStorageService();
+        await storageService.saveAuthToken(response.token);
+        
+        // 如果有用户信息，也保存起来
+        if (response.userInfo) {
+          await storageService.saveUserInfo(response.userInfo);
+        }
+      } catch (storageError) {
+        console.error('保存认证信息失败:', storageError);
+        throw new Error('保存登录信息失败，请稍后重试');
+      }
+      
+      // 保存记住我选项
+      if (this.rememberMe) {
+        // 这里可以添加保存用户名到Preferences的逻辑
+      }
+      
+      // 显示成功提示
+      prompt.showToast({
+        message: '登录成功！',
+        duration: 1500
+      });
+      
+      // 延迟跳转到主页，让用户看到成功提示
+      setTimeout(() => {
+        router.replaceUrl({
+          url: 'pages/Home'
+        });
+      }, 1500);
+      
+    } catch (err) {
+      // 登录失败，显示错误信息
       this.isLoading = false;
       
-      if (this.username === this.validUsername && this.password === this.validPassword) {
-        // 登录成功，跳转到主页
-        prompt.showToast({
-          message: '登录成功！',
-          duration: 1500
-        });
+      // 根据错误类型显示不同的错误消息
+      let errorMessage = '登录失败，请稍后重试';
+      if (err instanceof Error) {
+        const errMsg = err.message.toLowerCase();
+        console.error('登录失败详情:', errMsg);
         
-        // 保存记住我选项
-        if (this.rememberMe) {
-          // 这里可以添加保存用户名到Preferences的逻辑
+        if (errMsg.includes('network') || errMsg.includes('网络') || errMsg.includes('连接') || errMsg.includes('connect')) {
+          errorMessage = '网络连接失败，请检查网络设置和API服务器地址';
+        } else if (errMsg.includes('timeout') || errMsg.includes('超时')) {
+          errorMessage = '请求超时，请检查网络连接或稍后重试';
+        } else if (errMsg.includes('token') || errMsg.includes('响应') || errMsg.includes('json') || errMsg.includes('解析')) {
+          errorMessage = '服务器响应异常，请稍后重试';
+        } else if (errMsg.includes('storage') || errMsg.includes('保存')) {
+          errorMessage = '保存登录信息失败，请稍后重试';
+        } else if (errMsg.includes('permission') || errMsg.includes('权限')) {
+          errorMessage = '网络权限不足，请检查应用权限设置';
+        } else if (errMsg.includes('用户名') || errMsg.includes('密码') || errMsg.includes('验证失败')) {
+          errorMessage = '用户名或密码错误';
+        } else if (errMsg.includes('http') && errMsg.includes('error')) {
+          const match = errMsg.match(/http error[:\s]*(\d+)/i);
+          if (match && match[1]) {
+            const statusCode = match[1];
+            if (statusCode === '404') {
+              errorMessage = 'API接口不存在，请联系管理员';
+            } else if (statusCode === '500') {
+              errorMessage = '服务器内部错误，请稍后重试';
+            } else {
+              errorMessage = `服务器错误: HTTP ${statusCode}`;
+            }
+          } else {
+            errorMessage = '服务器请求失败，请稍后重试';
+          }
+        } else {
+          errorMessage = err.message || '未知错误';
         }
-        
-        // 延迟跳转，让用户看到成功提示
-        setTimeout(() => {
-          router.replaceUrl({
-            url: 'pages/Home'
-          });
-        }, 1500);
-      } else {
-        this.errorMessage = '用户名或密码错误';
       }
-    }, 1000);
+      
+      this.errorMessage = errorMessage;
+      
+      // 显示错误提示
+      prompt.showToast({
+        message: errorMessage,
+        duration: 3000
+      });
+      
+      console.error('登录失败详情:', err);
+    }
   }
   
   // 切换密码可见性
@@ -82,6 +215,13 @@ export struct Login {
     prompt.showToast({
       message: '请联系管理员重置密码',
       duration: 2000
+    });
+  }
+  
+  // 跳转到网络测试页面
+  private testNetworkConnection(): void {
+    router.pushUrl({
+      url: 'pages/NetworkTest'
     });
   }
 
@@ -129,7 +269,7 @@ export struct Login {
           // 用户名输入框
           Row() {
             Text('用户名')
-              .fontSize(20)
+              .fontSize(16)
               .fontColor('#333333')
           }
           .width('100%')
@@ -159,7 +299,7 @@ export struct Login {
           Column() {
             Row() {
               Text('密码')
-                .fontSize(18)
+                .fontSize(16)
                 .fontColor('#333333')
             }
             .width('100%')
@@ -246,8 +386,8 @@ export struct Login {
             .fontSize(16)
             .fontWeight(FontWeight.Medium)
             .enabled(!this.isLoading)
-            .onClick(() => {
-              this.handleLogin();
+            .onClick(async () => {
+              await this.handleLogin();
             })
             .margin({ bottom: 24 })
           
@@ -317,6 +457,24 @@ export struct Login {
               .margin({ left: 4 })
               .onClick(() => {
                 this.goToRegister();
+              })
+          }
+          .width('100%')
+          .justifyContent(FlexAlign.Center)
+          .margin({ bottom: 20 })
+          
+          // 网络测试按钮
+          Row() {
+            Text('网络连接有问题？')
+              .fontSize(14)
+              .fontColor('#666666')
+            
+            Text('测试网络连接')
+              .fontSize(14)
+              .fontColor('#FF6B35')
+              .margin({ left: 4 })
+              .onClick(() => {
+                this.testNetworkConnection();
               })
           }
           .width('100%')

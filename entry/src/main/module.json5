@@ -10,6 +10,34 @@
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.INTERNET",
+        "reason": "$string:internet_permission_reason",
+        "usedScene": {
+          "abilities": [
+            "EntryAbility"
+          ],
+          "when": "always"
+        }
+      },
+      {
+        "name": "ohos.permission.GET_NETWORK_INFO",
+        "reason": "$string:network_info_permission_reason",
+        "usedScene": {
+          "abilities": [
+            "EntryAbility"
+          ],
+          "when": "always"
+        }
+      }
+    ],
+    "metadata": [
+      {
+        "name": "ohos.network.security_policy",
+        "value": "{\"networkSecurityConfig\":{\"cleartextTraffic\":{\"allowed\":true}}}"
+      }
+    ],
     "abilities": [
       {
         "name": "EntryAbility",

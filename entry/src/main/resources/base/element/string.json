@@ -11,6 +11,14 @@
     {
       "name": "EntryAbility_label",
       "value": "label"
+    },
+    {
+      "name": "internet_permission_reason",
+      "value": "用于网络请求，访问登录和注册API"
+    },
+    {
+      "name": "network_info_permission_reason",
+      "value": "用于检查网络状态，确保网络连接正常"
     }
   ]
 }
