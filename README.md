@@ -2,7 +2,7 @@
 
 ## 📱 工程概述
 
-**hongmeng-demo** 是一个基于HarmonyOS 6.0.2(22)开发的移动应用，采用Stage模型架构，使用ArkTS作为主要开发语言。应用包含启动页、登录页、注册页和主页四个主要页面，实现了完整的用户认证流程。
+**hongmeng-demo** 是一个基于HarmonyOS 6.0.2(22)开发的移动应用，采用Stage模型架构，使用ArkTS作为主要开发语言。应用包含启动页、登录页、注册页、主页和网络测试页面五个主要页面，实现了完整的用户认证流程和网络功能测试。
 
 ### 🚀 主要特性
 - **现代化架构**：采用HarmonyOS Stage模型，支持模块化开发
@@ -19,7 +19,9 @@
 | ArkTS | 最新版 | 开发语言 |
 | ArkUI | 3.0 | UI框架 |
 | Stage模型 | 是 | 应用架构 |
-| 构建工具 | Hvigor | 构建系统 |
+| Hvigor | 最新版 | 构建系统 |
+| ohpm | 最新版 | 包管理器 |
+| Node.js | 18+ LTS | 运行时环境 |
 
 ## 📁 工程结构
 
@@ -47,7 +49,11 @@ hongmeng-demo/
 │   │   │       ├── Splash.ets  # 启动页
 │   │   │       ├── Login.ets   # 登录页
 │   │   │       ├── Register.ets # 注册页
-│   │   │       └── Home.ets    # 主页
+│   │   │       ├── Home.ets    # 主页
+│   │   │       └── NetworkTest.ets # 网络测试页
+│   │   ├── services/           # 服务层
+│   │   │   ├── HttpService.ets # HTTP服务
+│   │   │   └── StorageService.ets # 存储服务
 │   │   ├── resources/          # 模块资源
 │   │   └── module.json5        # 模块配置
 │   └── entry_test/             # 测试模块
@@ -85,14 +91,38 @@ hongmeng-demo/
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.INTERNET",
+        "reason": "$string:internet_permission_reason",
+        "usedScene": {
+          "abilities": ["EntryAbility"],
+          "when": "always"
+        }
+      },
+      {
+        "name": "ohos.permission.GET_NETWORK_INFO",
+        "reason": "$string:network_info_permission_reason",
+        "usedScene": {
+          "abilities": ["EntryAbility"],
+          "when": "always"
+        }
+      }
+    ],
+    "metadata": [
+      {
+        "name": "ohos.network.security_policy",
+        "value": "{\"networkSecurityConfig\":{\"cleartextTraffic\":{\"allowed\":true}}}"
+      }
+    ],
     "abilities": [
       {
         "name": "EntryAbility",
         "srcEntry": "./ets/entryability/EntryAbility.ets",
         "description": "$string:EntryAbility_desc",
-        "icon": "$media:icon",
+        "icon": "$media:layered_image",
         "label": "$string:EntryAbility_label",
-        "startWindowIcon": "$media:icon",
+        "startWindowIcon": "$media:startIcon",
         "startWindowBackground": "$color:start_window_background",
         "exported": true,
         "skills": [
@@ -127,7 +157,8 @@ hongmeng-demo/
     "pages/Splash",
     "pages/Login",
     "pages/Register",
-    "pages/Home"
+    "pages/Home",
+    "pages/NetworkTest"
   ]
 }
 ```
@@ -332,6 +363,29 @@ entry_test/
 - 退出登录按钮
 - 使用`@State`和`@Link`管理页面状态
 - 包含公共组件（HomeContent, Profile）
+
+### 5. 网络测试页 (NetworkTest)
+- 网络连接状态检测
+- HTTP请求功能测试
+- 网络信息显示
+- 使用`@State`管理网络状态
+- 集成HttpService进行网络请求
+
+## 🛠️ 服务层说明
+
+### 1. HttpService
+- 封装HTTP网络请求功能
+- 支持GET、POST等HTTP方法
+- 处理网络请求错误和超时
+- 提供统一的API接口调用
+- 使用`@ohos.net.http`模块
+
+### 2. StorageService
+- 封装本地数据存储功能
+- 支持键值对存储
+- 提供数据持久化能力
+- 处理存储异常情况
+- 使用`@ohos.data.preferences`模块
 
 ## 🔧 开发指南
 
@@ -555,6 +609,13 @@ router.back();
 - 添加Windows PowerShell兼容命令
 - 完善Windows开发环境指南
 - 更新项目文档
+
+### v1.2.0 (2026-04-12)
+- 新增NetworkTest页面
+- 添加HttpService网络服务
+- 添加StorageService存储服务
+- 完善网络权限配置
+- 更新README文档
 
 ---
 
