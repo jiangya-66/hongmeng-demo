@@ -245,7 +245,7 @@ export struct Login {
         Blank()
       }
       .width('100%')
-      .padding({ left: 20, right: 20, top: 60, bottom: 20 })
+      .padding({ left: 20, right: 20, top: 20, bottom: 20 })
 
       // 登录表单
       Scroll() {
@@ -497,11 +497,11 @@ export struct Login {
       .width('100%')
       .height('100%')
       
-      // 底部版权信息
-      Text('© 2024 MyApplication')
-        .fontSize(12)
-        .fontColor('#999999')
-        .margin({ top: 'auto', bottom: 40 })
+      // // 底部版权信息
+      // Text('© 2024 MyApplication')
+      //   .fontSize(12)
+      //   .fontColor('#999999')
+      //   .margin({ top: 'auto', bottom: 40 })
     }
     .width('100%')
     .height('100%')
