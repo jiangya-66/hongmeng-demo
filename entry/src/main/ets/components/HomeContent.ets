@@ -28,6 +28,13 @@ interface WeeklyDataItem {
   value: number;
 }
 
+// 新闻轮播数据接口
+interface NewsItem {
+  id: number;
+  title: string;
+  content: string;
+}
+
 @Component
 export struct HomeContent {
   // 数据统计卡片数据
@@ -64,6 +71,20 @@ export struct HomeContent {
     { title: '系统更新', description: '系统已更新到最新版本', time: '1小时前', icon: 'app.media.startIcon' },
     { title: '数据备份', description: '每日数据备份已完成', time: '2小时前', icon: 'app.media.startIcon' }
   ];
+
+  // 新闻轮播数据
+  @State newsItems: NewsItem[] = [
+    { id: 1, title: '公司新闻', content: '公司荣获2024年度科技创新企业奖' },
+    { id: 2, title: '产品发布', content: '新产品HarmonyOS 4.0正式发布，带来全新体验' },
+    { id: 3, title: '员工活动', content: '公司组织年度团建活动，提升团队凝聚力' },
+    { id: 4, title: '市场动态', content: '公司市场份额在Q2季度增长15%，创历史新高' },
+    { id: 5, title: '技术突破', content: '研发团队在AI算法领域取得重大突破' },
+    { id: 6, title: '合作伙伴', content: '公司与华为达成战略合作，共同推进生态建设' }
+  ];
+
+  // 轮播相关状态
+  @State currentNewsIndex: number = 0;
+  @State marqueeAnimation: number = 0;
 
   // 处理统计卡片点击
   private handleStatClick(statTitle: string): void {
@@ -106,49 +127,81 @@ export struct HomeContent {
     }
   }
 
+  // 轮播相关方法
+  private startMarqueeAnimation(): void {
+    // 启动轮播动画
+    const animate = () => {
+      this.marqueeAnimation += 1;
+      
+      // 如果动画值达到一定阈值，切换到下一条新闻
+      if (this.marqueeAnimation >= 100) {
+        this.marqueeAnimation = 0;
+        this.currentNewsIndex = (this.currentNewsIndex + 1) % this.newsItems.length;
+      }
+      
+      // 继续动画
+      setTimeout(() => {
+        animate();
+      }, 50); // 每50ms更新一次动画
+    };
+    
+    animate();
+  }
+
+  // 处理轮播点击
+  private handleNewsClick(newsItem: NewsItem): void {
+    prompt.showToast({
+      message: `查看新闻: ${newsItem.title}`,
+      duration: 1500
+    });
+  }
+
   build() {
     Column() {
-      // 欢迎卡片
-      Column() {
-        Row() {
-          Column() {
-            Text('欢迎回来')
-              .fontSize(18)
-              .fontColor('#FFFFFF')
-              .opacity(0.9)
-            
-            Text('MyApplication')
-              .fontSize(28)
-              .fontWeight(FontWeight.Bold)
-              .fontColor('#FFFFFF')
-              .margin({ top: 4 })
-          }
-          
-          Image($r('app.media.startIcon'))
-            .width(60)
-            .height(60)
-            .margin({ left: 'auto' })
-        }
-        .width('100%')
-        .padding({ left: 24, right: 24, top: 24, bottom: 24 })
-      }
-      .width('94%')
-      .margin({ top: 16, left: 16, right: 16 })
-      .backgroundColor('#007DFF')
-      .borderRadius(20)
-      .shadow({ radius: 16, color: '#007DFF40', offsetX: 0, offsetY: 6 })
+      // 新闻轮播区域
+      this.BuildNewsMarquee()
 
-      // 数据统计卡片
-      this.BuildStatsCard()
-
-      // 任务列表
-      this.BuildTaskList()
-
-      // 图表区域
-      this.BuildChartSection()
-
-      // 最近活动
-      this.BuildRecentActivities()
+      // // 欢迎卡片
+      // Column() {
+      //   Row() {
+      //     Column() {
+      //       Text('欢迎回来')
+      //         .fontSize(18)
+      //         .fontColor('#FFFFFF')
+      //         .opacity(0.9)
+      //
+      //       Text('MyApplication')
+      //         .fontSize(28)
+      //         .fontWeight(FontWeight.Bold)
+      //         .fontColor('#FFFFFF')
+      //         .margin({ top: 4 })
+      //     }
+      //
+      //     Image($r('app.media.startIcon'))
+      //       .width(60)
+      //       .height(60)
+      //       .margin({ left: 'auto' })
+      //   }
+      //   .width('100%')
+      //   .padding({ left: 24, right: 24, top: 24, bottom: 24 })
+      // }
+      // .width('94%')
+      // .margin({ top: 16, left: 16, right: 16 })
+      // .backgroundColor('#007DFF')
+      // .borderRadius(20)
+      // .shadow({ radius: 16, color: '#007DFF40', offsetX: 0, offsetY: 6 })
+      //
+      // // 数据统计卡片
+      // this.BuildStatsCard()
+      //
+      // // 任务列表
+      // this.BuildTaskList()
+      //
+      // // 图表区域
+      // this.BuildChartSection()
+      //
+      // // 最近活动
+      // this.BuildRecentActivities()
 
       // 底部占位空间
       Column()
@@ -157,6 +210,76 @@ export struct HomeContent {
     }
     .width('100%')
     .height('100%')
+    .position({ top: 0 }) // 固定在顶部
+    .backgroundImage($r('app.media.content12'))
+    .backgroundImageSize(ImageSize.Cover) // 图片宽度设为父容器大小，高度超出的部分截掉
+    .clip(true) // 超出部分裁剪
+    .onAppear(() => {
+      // 组件出现时启动轮播动画
+      this.startMarqueeAnimation();
+    })
+  }
+
+  // 构建新闻轮播组件
+  @Builder
+  BuildNewsMarquee() {
+    Column() {
+      // 轮播容器
+      Row() {
+        // 轮播内容区域
+        Column() {
+          Row() {
+            
+            // 新闻指示器
+            Row() {
+              ForEach(this.newsItems, (item: NewsItem, index: number) => {
+                Column()
+                  // .width(6)
+                  // .height(6)
+                  // .backgroundColor(index === this.currentNewsIndex ? '#FFFFFF' : '#FFFFFF80')
+                  // .borderRadius(3)
+                  // .margin({ right: 4 })
+              })
+            }
+            .margin({ left: 'auto' })
+          }
+          .width('100%')
+
+          
+          // 轮播内容 - 使用Stack实现从右到左滚动效果
+          Stack() {
+            // 当前新闻
+            Row() {
+              Text(this.newsItems[this.currentNewsIndex].content)
+                .fontSize(14)
+                .fontWeight(FontWeight.Normal)
+                .fontColor('#666666')
+                .textOverflow({ overflow: TextOverflow.Clip })
+                .maxLines(1)
+            }
+            .width('100%')
+            .translate({ x: -this.marqueeAnimation * 2 }) // 从右到左滚动
+          }
+          .width('100%')
+          .height(24)
+          .clip(true) // 超出部分裁剪
+        }
+        .layoutWeight(1)
+      }
+      .width('100%')
+      .height('100%')
+      .padding({ left: 16, right: 16 })
+      .alignItems(VerticalAlign.Center)
+    }
+    .width('98%') // 宽度为父容器的90%
+    .height(38) // 高度为50
+    .backgroundColor('#ffffff')
+    .borderRadius(20) // 圆角
+    .margin({ top: 92, left: '5%', right: '5%' }) // 水平居中
+    .shadow({ radius: 10, color: '#00000020', offsetX: 0, offsetY: 4 })
+    .onClick(() => {
+      this.handleNewsClick(this.newsItems[this.currentNewsIndex]);
+    })
   }
 
   // 构建统计卡片

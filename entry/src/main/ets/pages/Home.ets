@@ -77,7 +77,7 @@ export struct Home {
           // 顶部占位空间，确保内容不被顶部固定区域遮挡
           Column()
             .width('100%')
-            .height(80) // 顶部区域的高度：状态栏(60+24+24=108) + 搜索栏(44+16=60) + 额外间距
+            .height(50) // 顶部区域的高度：状态栏(60+24+24=108) + 搜索栏(44+16=60) + 额外间距
             
           if (this.selectedTab === 0) {
             // 首页内容 - 使用新的HomeContent组件
@@ -178,17 +178,17 @@ export struct Home {
         // .padding({ left: 24, right: 24, top: 60, bottom: 24 })
         
         // 搜索栏
-        Row() {
-          TextInput({ placeholder: '搜索内容...', text: this.searchText })
+        Stack() {
+          TextInput({ placeholder: '搜索内容', text: this.searchText })
             .width('100%')
-            .height(44)
-            .backgroundColor('#FFFFFF')
-            .padding({ left: 16, right: 44 })
+            .height(35)
+            .backgroundColor('#808BC2')
+            .margin({left:15, top:15})
+            .padding({ left: 40, right: 16 })
             .borderRadius(22)
-            .border({ width: 1, color: '#E0E0E0' })
             .fontSize(14)
-            .fontColor('#333333')
-            .placeholderColor('#999999')
+            .fontColor('#ffffff')
+            .placeholderColor('#ffffff')
             .onChange((value: string) => {
               this.searchText = value;
             })
@@ -196,28 +196,32 @@ export struct Home {
               this.handleSearch();
             })
           
-          // 搜索图标
-          Image($r('app.media.startIcon'))
-            .width(20)
-            .height(20)
-            .margin({ right: 12 ,top:10})
-            .position({ x: '90%' })
+          // 搜索图标叠加在搜索栏之上
+          Image($r('app.media.iconsearch'))
+            .width(25)
+            .height(25)
+            .position({ x: 15, y: 12 })
             .onClick(() => {
               this.handleSearch();
             })
         }
-        .width('100%')
-        .padding({ left: 24, right: 24, bottom: 16 })
+        .width('45%')
+        .height(50)
+        .alignSelf(ItemAlign.Center)
+        .padding({ bottom: 16 })
       }
       .width('100%')
-      .backgroundColor('#F8F9FA')
+      .height(50) // 设置高度为80
       .position({ top: 0 }) // 固定在顶部
+      .backgroundImage($r('app.media.headerbg'))
+      .backgroundImageSize(ImageSize.Cover) // 图片宽度设为父容器大小，高度超出的部分截掉
+      .clip(true) // 超出部分裁剪
       
       // 底部导航栏（固定）
       Row() {
         // 首页
         Column() {
-          Image(this.selectedTab === 0 ? $r('app.media.startIcon') : $r('app.media.foreground'))
+          Image(this.selectedTab === 0 ? $r('app.media.iconhome') : $r('app.media.iconhome'))
             .width(24)
             .height(24)
             .fillColor(this.selectedTab === 0 ? '#007DFF' : '#999999')
@@ -234,14 +238,14 @@ export struct Home {
           this.selectedTab = 0;
         })
         
-        // 消息
+        // 通讯录
         Column() {
-          Image(this.selectedTab === 1 ? $r('app.media.startIcon') : $r('app.media.foreground'))
+          Image(this.selectedTab === 1 ? $r('app.media.iconaddress') : $r('app.media.iconaddress'))
             .width(24)
             .height(24)
             .fillColor(this.selectedTab === 1 ? '#007DFF' : '#999999')
           
-          Text('消息')
+          Text('通讯录')
             .fontSize(10)
             .fontColor(this.selectedTab === 1 ? '#007DFF' : '#999999')
             .margin({ top: 4 })
@@ -253,14 +257,14 @@ export struct Home {
           this.selectedTab = 1;
         })
         
-        // 设置
+        // 日程安排
         Column() {
-          Image(this.selectedTab === 2 ? $r('app.media.startIcon') : $r('app.media.foreground'))
+          Image(this.selectedTab === 2 ? $r('app.media.icontime') : $r('app.media.icontime'))
             .width(24)
             .height(24)
             .fillColor(this.selectedTab === 2 ? '#007DFF' : '#999999')
           
-          Text('设置')
+          Text('日程安排')
             .fontSize(10)
             .fontColor(this.selectedTab === 2 ? '#007DFF' : '#999999')
             .margin({ top: 4 })
@@ -272,14 +276,14 @@ export struct Home {
           this.selectedTab = 2;
         })
         
-        // 我的
+        // 个人中心
         Column() {
-          Image(this.selectedTab === 3 ? $r('app.media.startIcon') : $r('app.media.foreground'))
+          Image(this.selectedTab === 3 ? $r('app.media.iconman') : $r('app.media.iconman'))
             .width(24)
             .height(24)
             .fillColor(this.selectedTab === 3 ? '#007DFF' : '#999999')
           
-          Text('我的')
+          Text('个人中心')
             .fontSize(10)
             .fontColor(this.selectedTab === 3 ? '#007DFF' : '#999999')
             .margin({ top: 4 })

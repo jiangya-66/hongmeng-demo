@@ -252,19 +252,25 @@ export struct Login {
         Column() {
           // 表单标题
           Column() {
-            Text('欢迎回来')
-              .fontSize(32)
-              .fontWeight(FontWeight.Bold)
-              .fontColor('#007DFF')
-              .margin({ bottom: 8 })
-            
-            Text('请登录您的账号')
-              .fontSize(16)
-              .fontColor('#666666')
+            Image($r('app.media.log'))
+              .width(80)
+              .height(80)
+              .onClick(() => {
+                router.back();
+              })
+            // Text('欢迎回来')
+            //   .fontSize(32)
+            //   .fontWeight(FontWeight.Bold)
+            //   .fontColor('#007DFF')
+            //   .margin({ bottom: 8 })
+            //
+            // Text('请登录您的账号')
+            //   .fontSize(16)
+            //   .fontColor('#666666')
           }
           .width('100%')
           .alignItems(HorizontalAlign.Center)
-          .margin({ top: 40, bottom: 60 })
+          .margin({ top: 20, bottom: 40 })
           
           // 用户名输入框
           Row() {
@@ -413,36 +419,36 @@ export struct Login {
             .justifyContent(FlexAlign.Center)
             .margin({ bottom: 24 })
             
-            Row() {
-              Button('微信登录', { type: ButtonType.Normal })
-                .width('45%')
-                .height(44)
-                .backgroundColor('#07C160')
-                .fontColor('#FFFFFF')
-                .fontSize(14)
-                .onClick(() => {
-                  prompt.showToast({
-                    message: '微信登录开发中',
-                    duration: 1500
-                  });
-                })
-              
-              Button('QQ登录', { type: ButtonType.Normal })
-                .width('45%')
-                .height(44)
-                .backgroundColor('#12B7F5')
-                .fontColor('#FFFFFF')
-                .fontSize(14)
-                .margin({ left: '10%' })
-                .onClick(() => {
-                  prompt.showToast({
-                    message: 'QQ登录开发中',
-                    duration: 1500
-                  });
-                })
-            }
-            .width('100%')
-            .justifyContent(FlexAlign.Center)
+            // Row() {
+            //   Button('微信登录', { type: ButtonType.Normal })
+            //     .width('45%')
+            //     .height(44)
+            //     .backgroundColor('#07C160')
+            //     .fontColor('#FFFFFF')
+            //     .fontSize(14)
+            //     .onClick(() => {
+            //       prompt.showToast({
+            //         message: '微信登录开发中',
+            //         duration: 1500
+            //       });
+            //     })
+            //
+            //   Button('QQ登录', { type: ButtonType.Normal })
+            //     .width('45%')
+            //     .height(44)
+            //     .backgroundColor('#12B7F5')
+            //     .fontColor('#FFFFFF')
+            //     .fontSize(14)
+            //     .margin({ left: '10%' })
+            //     .onClick(() => {
+            //       prompt.showToast({
+            //         message: 'QQ登录开发中',
+            //         duration: 1500
+            //       });
+            //     })
+            // }
+            // .width('100%')
+            // .justifyContent(FlexAlign.Center)
           }
           .width('100%')
           .margin({ bottom: 40 })
@@ -465,23 +471,23 @@ export struct Login {
           .justifyContent(FlexAlign.Center)
           .margin({ bottom: 20 })
           
-          // 网络测试按钮
-          Row() {
-            Text('网络连接有问题？')
-              .fontSize(14)
-              .fontColor('#666666')
-            
-            Text('测试网络连接')
-              .fontSize(14)
-              .fontColor('#FF6B35')
-              .margin({ left: 4 })
-              .onClick(() => {
-                this.testNetworkConnection();
-              })
-          }
-          .width('100%')
-          .justifyContent(FlexAlign.Center)
-          .margin({ bottom: 40 })
+          // // 网络测试按钮
+          // Row() {
+          //   Text('网络连接有问题？')
+          //     .fontSize(14)
+          //     .fontColor('#666666')
+          //
+          //   Text('测试网络连接')
+          //     .fontSize(14)
+          //     .fontColor('#FF6B35')
+          //     .margin({ left: 4 })
+          //     .onClick(() => {
+          //       this.testNetworkConnection();
+          //     })
+          // }
+          // .width('100%')
+          // .justifyContent(FlexAlign.Center)
+          // .margin({ bottom: 40 })
         }
         .width('100%')
         .padding({ left: 40, right: 40 })

@@ -42,11 +42,11 @@ export struct Splash {
         .shadow({ radius: 20, color: '#007DFF20', offsetX: 0, offsetY: 10 })
       
       // 应用名称
-      Text('HONGMENG-APP')
-        .fontSize(36)
-        .fontWeight(FontWeight.Bold)
-        .fontColor('#007DFF')
-        .margin({ bottom: 12 })
+      // Text('HONGMENG-APP')
+      //   .fontSize(36)
+      //   .fontWeight(FontWeight.Bold)
+      //   .fontColor('#007DFF')
+      //   .margin({ bottom: 12 })
 
       // // 应用描述
       // Text('HarmonyOS 应用')
@@ -70,30 +70,30 @@ export struct Splash {
       }
       .margin({ bottom: 40 })
       
-      // 倒计时提示
-      Row() {
-        Text('正在启动应用，请稍候...')
-          .fontSize(14)
-          .fontColor('#999999')
-        
-        Text(`${this.countdown}s`)
-          .fontSize(14)
-          .fontColor('#007DFF')
-          .fontWeight(FontWeight.Medium)
-          .margin({ left: 4 })
-      }
-      
-      // 底部版权信息
-      Text('© 2025 中软国际')
-        .fontSize(12)
-        .fontColor('#CCCCCC')
-        .margin({ top: 80 })
+      // // 倒计时提示
+      // Row() {
+      //   Text('正在启动应用，请稍候...')
+      //     .fontSize(14)
+      //     .fontColor('#999999')
+      //
+      //   Text(`${this.countdown}s`)
+      //     .fontSize(14)
+      //     .fontColor('#007DFF')
+      //     .fontWeight(FontWeight.Medium)
+      //     .margin({ left: 4 })
+      // }
+      //
+      // // 底部版权信息
+      // Text('© 2025 中软国际')
+      //   .fontSize(12)
+      //   .fontColor('#CCCCCC')
+      //   .margin({ top: 80 })
     }
     .width('100%')
     .height('100%')
     .justifyContent(FlexAlign.Center)
     .alignItems(HorizontalAlign.Center)
-    .backgroundImage($r('app.media.background'))
+    .backgroundImage($r('app.media.Splash'))
     .backgroundImageSize(ImageSize.Cover)
   }
 }
