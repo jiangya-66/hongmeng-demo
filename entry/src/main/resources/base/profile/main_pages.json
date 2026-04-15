@@ -4,6 +4,8 @@
     "pages/Login",
     "pages/Register",
     "pages/Home",
-    "pages/NetworkTest"
+    "pages/NetworkTest",
+    "pages/WebTestPage",
+    "pages/WebTestLocalPage"
   ]
 }

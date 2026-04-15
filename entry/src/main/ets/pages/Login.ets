@@ -225,6 +225,20 @@ export struct Login {
     });
   }
 
+  // 跳转到H5测试页面
+  private goToWebTest(): void {
+    router.pushUrl({
+      url: 'pages/WebTestPage'
+    });
+  }
+
+  // 跳转到本地H5测试页面
+  private goToWebTestLocal(): void {
+    router.pushUrl({
+      url: 'pages/WebTestLocalPage'
+    });
+  }
+
   build() {
     Column() {
       // 顶部标题栏
@@ -465,6 +479,42 @@ export struct Login {
               .margin({ left: 4 })
               .onClick(() => {
                 this.goToRegister();
+              })
+          }
+          .width('100%')
+          .justifyContent(FlexAlign.Center)
+          .margin({ bottom: 20 })
+          
+          // H5测试链接
+          Row() {
+            Text('想要测试H5页面？')
+              .fontSize(14)
+              .fontColor('#666666')
+            
+            Text('H5测试')
+              .fontSize(14)
+              .fontColor('#FF6B35')
+              .margin({ left: 4 })
+              .onClick(() => {
+                this.goToWebTest();
+              })
+          }
+          .width('100%')
+          .justifyContent(FlexAlign.Center)
+          .margin({ bottom: 20 })
+          
+          // H5本地页测试链接
+          Row() {
+            Text('想要测试本地H5页面？')
+              .fontSize(14)
+              .fontColor('#666666')
+            
+            Text('H5本地页测试')
+              .fontSize(14)
+              .fontColor('#FF6B35')
+              .margin({ left: 4 })
+              .onClick(() => {
+                this.goToWebTestLocal();
               })
           }
           .width('100%')
