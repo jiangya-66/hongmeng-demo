@@ -32,6 +32,10 @@ class JsBridgeProxyImpl {
   getMethods(): object {
     return this.jsBridge.getMethods();
   }
+
+  makeCall(phoneNumber: string): object {
+    return this.jsBridge.makeCall(phoneNumber);
+  }
 }
 
 // 权限配置接口
@@ -62,6 +66,8 @@ export struct WebTestLocalPage {
 
   aboutToAppear() {
     webview.WebviewController.setWebDebuggingAccess(true);
+    // 提前初始化JSBridge服务，确保在WebView加载前就准备好
+    console.info('WebTestLocalPage: aboutToAppear - 初始化JSBridge服务');
   }
 
   private registerJavaScriptBridge(): void {
@@ -90,7 +96,7 @@ export struct WebTestLocalPage {
         this.controller.registerJavaScriptProxy(
           jsProxy,
           'harmonyBridge',
-          ['getDeviceInfo', 'testMethod', 'showToast', 'getMethods'],
+          ['getDeviceInfo', 'testMethod', 'showToast', 'getMethods', 'makeCall'],
           [], // asyncMethodList为空
           permission
         );
@@ -107,7 +113,7 @@ export struct WebTestLocalPage {
           this.controller.registerJavaScriptProxy(
             jsProxy,
             'harmonyBridge',
-            ['getDeviceInfo', 'testMethod', 'showToast', 'getMethods']
+            ['getDeviceInfo', 'testMethod', 'showToast', 'getMethods', 'makeCall']
           );
           
           this.isBridgeRegistered = true;
@@ -117,13 +123,6 @@ export struct WebTestLocalPage {
           console.error(`无权限配置注册也失败: ${JSON.stringify(error2)}`);
         }
       }
-
-      this.isBridgeRegistered = true;
-      console.info('JavaScript桥接注册成功');
-
-      // 注册后必须调用refresh才能使JS对象生效
-      this.controller.refresh();
-
     } catch (error) {
       console.error(`注册JavaScript桥接失败: ${JSON.stringify(error)}`);
     }
@@ -214,6 +213,11 @@ export struct WebTestLocalPage {
           })
           .onPageBegin(() => {
             console.info('本地H5页面开始加载');
+            // 页面开始加载时尝试注册JSBridge
+            if (!this.isBridgeRegistered) {
+              console.info('页面开始加载，注册JSBridge');
+              this.registerJavaScriptBridge();
+            }
           })
           .onPageEnd(() => {
             console.info('本地H5页面加载完成');

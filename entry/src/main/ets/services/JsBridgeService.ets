@@ -1,5 +1,10 @@
+
 import deviceInfo from '@ohos.deviceInfo';
 import prompt from '@ohos.promptAction';
+import common from '@ohos.app.ability.common';
+import { BusinessError } from '@kit.BasicServicesKit';
+import Want from '@ohos.app.ability.Want';
+import call from '@ohos.telephony.call';
 
 // 设备信息接口
 interface DeviceInfoData {
@@ -26,6 +31,12 @@ interface MethodsResponse {
 interface DeviceInfoResponse {
   success: boolean;
   data: DeviceInfoData | null;
+  message: string;
+}
+
+// 拨打电话响应接口
+interface DialResponse {
+  success: boolean;
   message: string;
 }
 
@@ -77,11 +88,12 @@ export class JsBridgeService {
         message: '设备信息获取成功（仅公开信息）'
       };
     } catch (error) {
-      console.error(`JsBridgeService: 获取设备信息失败: ${JSON.stringify(error)}`);
+      const err = error as Error;
+      console.error(`JsBridgeService: 获取设备信息失败: ${JSON.stringify(err)}`);
       return {
         success: false,
         data: null,
-        message: `获取设备信息失败: ${error.message || error}`
+        message: `获取设备信息失败: ${err.message || err}`
       };
     }
   }
@@ -114,11 +126,83 @@ export class JsBridgeService {
       { name: 'getDeviceInfo', description: '获取设备信息' },
       { name: 'testMethod', description: '测试方法，返回连接状态' },
       { name: 'showToast', description: '显示提示信息' },
-      { name: 'getMethods', description: '获取所有可用方法' }
+      { name: 'getMethods', description: '获取所有可用方法' },
+      { name: 'makeCall', description: '拨打电话（打开拨号界面）' }
     ];
     
     return {
       methods: methods
     };
+  }
+
+  /**
+   * 拨打电话（打开拨号界面）
+   * @param phoneNumber 电话号码
+   * @returns 拨打电话结果
+   */
+  public makeCall(phoneNumber: string): DialResponse {
+    try {
+      // 验证电话号码格式
+      if (!phoneNumber || phoneNumber.trim() === '') {
+        return {
+          success: false,
+          message: '电话号码不能为空'
+        };
+      }
+
+      // 简单的电话号码格式验证（支持国际号码格式）
+      const phoneRegex = /^[\d\+\-\s\(\)]{5,20}$/;
+      if (!phoneRegex.test(phoneNumber)) {
+        return {
+          success: false,
+          message: '电话号码格式不正确，请输入有效的电话号码'
+        };
+      }
+
+      // 清理电话号码中的空格和特殊字符
+      const cleanPhoneNumber = phoneNumber.replace(/\s+/g, '').replace(/[\(\)\-]/g, '');
+      
+      // 检查设备是否支持语音功能
+      try {
+        const isVoiceCapable = call.hasVoiceCapability();
+        if (!isVoiceCapable) {
+          return {
+            success: false,
+            message: '当前设备不支持语音通话功能'
+          };
+        }
+      } catch (error) {
+        const err = error as Error;
+        console.warn(`JsBridgeService: 检查语音能力失败: ${err.message || err}`);
+        // 继续执行，不中断流程
+      }
+
+      // 使用HarmonyOS标准的call.makeCall()方法拉起拨号界面
+      // 注意：call.makeCall()不需要特殊权限，而call.dial()需要ohos.permission.PLACE_CALL权限
+      call.makeCall(cleanPhoneNumber, (err: BusinessError) => {
+        if (err) {
+          console.error(`JsBridgeService: 拉起拨号界面失败，错误码: ${err.code}, 信息: ${err.message}`);
+          // 显示错误提示
+          prompt.showToast({
+            message: `拉起拨号界面失败: ${err.message || '未知错误'}`,
+            duration: 3000
+          });
+        } else {
+          console.info(`JsBridgeService: 成功拉起拨号界面，电话号码: ${cleanPhoneNumber}`);
+        }
+      });
+
+      return {
+        success: true,
+        message: `正在打开拨号界面，电话号码: ${cleanPhoneNumber}`
+      };
+    } catch (error) {
+      const err = error as Error;
+      console.error(`JsBridgeService: 拨打电话失败: ${JSON.stringify(err)}`);
+      return {
+        success: false,
+        message: `拨打电话失败: ${err.message || err}`
+      };
+    }
   }
 }
