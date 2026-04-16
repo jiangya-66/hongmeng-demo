@@ -1,6 +1,54 @@
 import router from '@ohos.router';
 import prompt from '@ohos.promptAction';
 import webview from '@ohos.web.webview';
+import { JsBridgeService } from '../services/JsBridgeService';
+
+// 错误响应接口
+interface ErrorResponse {
+  success: boolean;
+  message: string;
+}
+
+// JavaScript代理类
+class JsBridgeProxyImpl {
+  private jsBridge: JsBridgeService;
+
+  constructor(jsBridge: JsBridgeService) {
+    this.jsBridge = jsBridge;
+  }
+
+  getDeviceInfo(): object {
+    return this.jsBridge.getDeviceInfo();
+  }
+
+  testMethod(): string {
+    return this.jsBridge.testMethod();
+  }
+
+  showToast(message: string): void {
+    this.jsBridge.showToast(message);
+  }
+
+  getMethods(): object {
+    return this.jsBridge.getMethods();
+  }
+}
+
+// 权限配置接口
+interface UrlPermission {
+  scheme: string;
+  host: string;
+  port: string;
+  path: string;
+}
+
+interface JsBridgePermissionInner {
+  urlPermissionList: UrlPermission[];
+}
+
+interface JsBridgePermissionConfig {
+  javascriptProxyPermission: JsBridgePermissionInner;
+}
 
 @Entry
 @Component
@@ -10,7 +58,77 @@ export struct WebTestLocalPage {
   
   // Web控制器
   controller: webview.WebviewController = new webview.WebviewController();
-  
+  private isBridgeRegistered: boolean = false;
+
+  aboutToAppear() {
+    webview.WebviewController.setWebDebuggingAccess(true);
+  }
+
+  private registerJavaScriptBridge(): void {
+    if (this.isBridgeRegistered) return;
+
+    try {
+      const jsBridge = JsBridgeService.getInstance();
+      const jsProxy = new JsBridgeProxyImpl(jsBridge);
+
+      // 简化权限配置，先测试基本功能
+      const permissionObj: JsBridgePermissionConfig = {
+        javascriptProxyPermission: {
+          urlPermissionList: [
+            {
+              scheme: "resource",
+              host: "rawfile",
+              port: "",
+              path: ""
+            }
+          ]
+        }
+      };
+      const permission = JSON.stringify(permissionObj);
+
+      try {
+        this.controller.registerJavaScriptProxy(
+          jsProxy,
+          'harmonyBridge',
+          ['getDeviceInfo', 'testMethod', 'showToast', 'getMethods'],
+          [], // asyncMethodList为空
+          permission
+        );
+
+        this.isBridgeRegistered = true;
+        console.info('JavaScript桥接注册成功');
+
+        // 注册后必须调用refresh才能使JS对象生效
+        this.controller.refresh();
+      } catch (error) {
+        console.error(`注册JavaScript桥接失败: ${JSON.stringify(error)}`);
+        // 尝试不使用权限配置
+        try {
+          this.controller.registerJavaScriptProxy(
+            jsProxy,
+            'harmonyBridge',
+            ['getDeviceInfo', 'testMethod', 'showToast', 'getMethods']
+          );
+          
+          this.isBridgeRegistered = true;
+          console.info('JavaScript桥接注册成功（无权限配置）');
+          this.controller.refresh();
+        } catch (error2) {
+          console.error(`无权限配置注册也失败: ${JSON.stringify(error2)}`);
+        }
+      }
+
+      this.isBridgeRegistered = true;
+      console.info('JavaScript桥接注册成功');
+
+      // 注册后必须调用refresh才能使JS对象生效
+      this.controller.refresh();
+
+    } catch (error) {
+      console.error(`注册JavaScript桥接失败: ${JSON.stringify(error)}`);
+    }
+  }
+
   // 处理搜索
   private handleSearch(): void {
     if (this.searchText.trim() === '') {
@@ -82,18 +200,28 @@ export struct WebTestLocalPage {
       Column() {
         // WebView组件 - 加载本地HTML文件
         Web({
-          src: $rawfile('index.html'), // 加载本地HTML文件 - 使用$rawfile资源引用
+          src: $rawfile('index_fixed.html'), // 加载本地HTML文件 - 使用$rawfile资源引用
           controller: this.controller
         })
           .width('100%')
           .height('100%')
           .javaScriptAccess(true) // 启用JavaScript
           .fileAccess(true) // 允许文件访问
+          .onControllerAttached(() => {
+            console.info('Web控制器已附加，注册JavaScript代理');
+            // 在控制器附加时注册JSBridge
+            this.registerJavaScriptBridge();
+          })
           .onPageBegin(() => {
             console.info('本地H5页面开始加载');
           })
           .onPageEnd(() => {
             console.info('本地H5页面加载完成');
+            // 如果页面加载完成但JSBridge还未注册，重新注册
+            if (!this.isBridgeRegistered) {
+              console.info('页面加载完成，重新注册JSBridge');
+              this.registerJavaScriptBridge();
+            }
           })
       }
       .width('100%')

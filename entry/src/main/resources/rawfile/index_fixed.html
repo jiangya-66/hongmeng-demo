@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML5 Test Page</title>
+  </head>
+  <body>
+    <div id="top" role="document">
+        <h1>HTML5 Test Page</h1>
+        <p>This is a test page filled with common HTML elements to be used to provide visual feedback whilst building CSS systems and frameworks.</p>
+        <input id="button01" onclick="getDeviceInfo()" type="button" value="从鸿蒙终端获取设备信息">
+        <textarea id="textarea01" rows="8" cols="48" placeholder="设备信息将显示在这里"></textarea>
+        <input id="button02" type="button" value="将H5文本框的内容显示到鸿蒙终端">
+        <textarea id="textarea02" rows="8" cols="48" placeholder="输入要发送到鸿蒙的消息"></textarea>
+        <br><br>
+        <input id="button03" type="button" value="测试JSBridge连接">
+        <div id="result"></div>
+    </div>
+    <script>
+      // JSBridge功能测试
+      function testJSBridge() {
+        try {
+          if (window.harmonyBridge && typeof window.harmonyBridge.testMethod === 'function') {
+            const result = window.harmonyBridge.testMethod();
+            showResult('JSBridge连接测试成功: ' + result);
+          } else {
+            showResult('错误: JSBridge未注册或testMethod方法不可用');
+            console.log('window.harmonyBridge:', window.harmonyBridge);
+            console.log('typeof window.harmonyBridge.testMethod:', typeof window.harmonyBridge?.testMethod);
+          }
+        } catch (error) {
+          showResult('JSBridge调用失败: ' + error.message);
+          console.error('JSBridge调用错误:', error);
+        }
+      }
+
+      // 获取设备信息
+      function getDeviceInfo() {
+        if (window.harmonyBridge && typeof window.harmonyBridge.getDeviceInfo === 'function') {
+          try {
+            const deviceInfo = window.harmonyBridge.getDeviceInfo();
+            console.log('设备信息:', deviceInfo);
+            showResult(deviceInfo);
+            // 将设备信息格式化并显示在 textarea01 中
+            const textarea01 = document.getElementById('textarea01');
+            if (textarea01) {
+              const formattedInfo = JSON.stringify(deviceInfo, null, 2);
+              textarea01.value = formattedInfo;
+              showResult('设备信息已获取并显示在文本框中');
+            } else {
+              showResult('未找到文本框 textarea01');
+            }
+          } catch (error) {
+            console.error('获取设备信息失败:', error);
+            showResult('获取设备信息失败: ' + error.message);
+          }
+        } else {
+          showResult('harmonyBridge.getDeviceInfo 方法不可用');
+        }
+      }
+
+      // 显示鸿蒙提示
+      function showHarmonyToast() {
+        try {
+          if (window.harmonyBridge && typeof window.harmonyBridge.showToast === 'function') {
+            window.harmonyBridge.showToast('这是来自H5页面的提示消息！');
+            showResult('提示消息已发送到鸿蒙终端');
+          } else {
+            showResult('错误: JSBridge未注册或showToast方法不可用');
+          }
+        } catch (error) {
+          showResult('显示提示失败: ' + error.message);
+        }
+      }
+
+      // 显示自定义提示
+      function showCustomToast() {
+        const message = document.getElementById('toastMessage').value;
+        if (!message) {
+          showResult('请输入提示消息');
+          return;
+        }
+        
+        try {
+          if (window.harmonyBridge && typeof window.harmonyBridge.showToast === 'function') {
+            window.harmonyBridge.showToast(message);
+            showResult('自定义提示已发送: ' + message);
+          } else {
+            showResult('错误: JSBridge未注册或showToast方法不可用');
+          }
+        } catch (error) {
+          showResult('显示自定义提示失败: ' + error.message);
+        }
+      }
+
+      // 获取可用方法
+      function getAvailableMethods() {
+        try {
+          if (window.harmonyBridge && typeof window.harmonyBridge.getMethods === 'function') {
+            const result = window.harmonyBridge.getMethods();
+            if (result && result.methods) {
+              let methodsText = '=== 可用JSBridge方法 ===\n\n';
+              result.methods.forEach(method => {
+                methodsText += '• ' + method.name + ': ' + method.description + '\n';
+              });
+              showResult(methodsText);
+            } else {
+              showResult('获取方法列表失败');
+            }
+          } else {
+            showResult('错误: JSBridge未注册或getMethods方法不可用');
+          }
+        } catch (error) {
+          showResult('获取方法列表失败: ' + error.message);
+        }
+      }
+
+      // 显示结果
+      function showResult(text) {
+        const resultDiv = document.getElementById('result');
+        resultDiv.textContent = text;
+        resultDiv.style.backgroundColor = '#fff3cd';
+        resultDiv.style.borderColor = '#ffeaa7';
+
+        // 3秒后恢复原样
+        setTimeout(() => {
+          resultDiv.style.backgroundColor = 'white';
+          resultDiv.style.borderColor = '#ddd';
+        }, 3000);
+      }
+
+      // 页面加载完成后检查JSBridge是否可用
+      window.addEventListener('load', function() {
+        setTimeout(() => {
+          if (window.harmonyBridge) {
+            showResult('JSBridge已就绪！可以使用以下功能：\n1. 测试JSBridge连接\n2. 获取设备信息\n3. 显示鸿蒙提示\n4. 获取可用方法');
+            // 自动测试连接
+            testJSBridge();
+          } else {
+            showResult('警告: JSBridge未检测到，请确保鸿蒙端已正确注册JavaScript代理');
+            console.log('页面加载完成，window.harmonyBridge:', window.harmonyBridge);
+          }
+        }, 1500); // 增加延迟，确保JSBridge已注册
+      });
+
+      // 原始按钮功能
+      document.getElementById('button01').addEventListener('click', function() {
+        getDeviceInfo();
+      });
+
+      document.getElementById('button02').addEventListener('click', function() {
+        const message = document.getElementById('textarea02').value;
+        if (message) {
+          if (window.harmonyBridge && typeof window.harmonyBridge.showToast === 'function') {
+            window.harmonyBridge.showToast(message);
+            showResult('消息已发送到鸿蒙终端: ' + message);
+          } else {
+            showResult('错误: JSBridge未注册或showToast方法不可用');
+          }
+        } else {
+          showResult('请输入要发送的消息');
+        }
+      });
+
+      // 添加测试按钮事件监听器
+      document.getElementById('button03').addEventListener('click', function() {
+        testJSBridge();
+      });
+    </script>
+  </body>
+</html>

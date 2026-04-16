@@ -10,7 +10,10 @@ export struct WebTestPage {
   
   // Web控制器
   controller: webview.WebviewController = new webview.WebviewController();
-  
+  aboutToAppear() {
+    // 关键步骤：开启 Web 调试模式
+    webview.WebviewController.setWebDebuggingAccess(true);
+  }
   // 处理搜索
   private handleSearch(): void {
     if (this.searchText.trim() === '') {
